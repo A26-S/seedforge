@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./seedforge.db
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+      - ./output:/app/output
+    depends_on:
+      - redis
+    command: python main.py
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm run dev
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
